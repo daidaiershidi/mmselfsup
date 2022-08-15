@@ -583,4 +583,4 @@ class MaskfeatMaskGenerator(object):
                 break
             else:
                 mask_count += delta
-        return img, mask
+        return img, torch.Tensor(mask).bool()

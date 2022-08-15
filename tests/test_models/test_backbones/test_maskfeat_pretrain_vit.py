@@ -14,6 +14,7 @@ def test_maskfeat_pretrain_vit():
     maskfeat_pretrain_backbone = MaskFeatViT(**backbone)
     maskfeat_pretrain_backbone.init_weights()
     fake_inputs = torch.randn((2, 3, 224, 224))
-    fake_outputs = maskfeat_pretrain_backbone(fake_inputs)[0]
+    fake_mask = torch.randn((2, 14, 14))
+    fake_outputs = maskfeat_pretrain_backbone(fake_inputs, fake_mask)
 
     assert list(fake_outputs.shape) == [2, 196, 768]

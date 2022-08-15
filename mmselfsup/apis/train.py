@@ -115,6 +115,19 @@ def train_model(model,
 
     data_loaders = [build_dataloader(ds, **train_loader_cfg) for ds in dataset]
 
+    # print(
+    #     'Path : /mnt/lustre/liukaiyuan.vendor/mmselfsup/mmselfsup/apis/train.py',
+    #     len(dataset))
+    # torch.save(
+    #     data_loaders[0][0],
+    #     '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train_dataset/mm/data0.wt'
+    # )
+    # torch.save(
+    #     data_loaders[0][10],
+    #     '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train_dataset/mm/data1.wt'
+    # )
+    # assert 1 == 0
+
     # put model on gpus
     if distributed:
         find_unused_parameters = cfg.get('find_unused_parameters', False)

@@ -79,18 +79,15 @@ class MaskFeatViT(VisionTransformer):
         if not (isinstance(self.init_cfg, dict)
                 and self.init_cfg['type'] == 'Pretrained'):
 
-            w = self.patch_embed.projection.weight.data
-            torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
-
-            torch.nn.init.normal_(self.cls_token, std=.02)
+            trunc_normal_(self.cls_token, std=.02)
             trunc_normal_(self.mask_token, std=.02)
+            trunc_normal_(self.pos_embed, std=0.02)
 
             self.apply(self._init_weights)
 
     def _init_weights(self, m):
-
-        if isinstance(m, nn.Linear):
-            torch.nn.init.xavier_uniform_(m.weight)
+        if isinstance(m, (nn.Linear, nn.Conv2d, nn.Conv3d)):
+            nn.init.trunc_normal_(m.weight, std=0.02)
             if isinstance(m, nn.Linear) and m.bias is not None:
                 nn.init.constant_(m.bias, 0)
         elif isinstance(m, nn.LayerNorm):
@@ -102,7 +99,10 @@ class MaskFeatViT(VisionTransformer):
         x, _ = self.patch_embed(x)
 
         # masking: length -> length * mask_ratio
-        x[mask] = x
+        B, L, _ = x.shape
+        mask_tokens = self.mask_token.expand(B, L, -1)
+        mask = mask.flatten(1).unsqueeze(-1)
+        x = x * (1 - mask.int()) + mask_tokens * mask
 
         # append cls token
         cls_tokens = self.cls_token.expand(B, -1, -1)
@@ -116,4 +116,4 @@ class MaskFeatViT(VisionTransformer):
             if i == len(self.layers) - 1 and self.final_norm:
                 x = self.norm1(x)
 
-        return (x[:, 1:], mask)
+        return x[:, 1:]

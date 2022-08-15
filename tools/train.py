@@ -177,6 +177,14 @@ def main():
     model = build_algorithm(cfg.model)
     model.init_weights()
 
+    print(
+        '\n\nPath : /mnt/lustre/liukaiyuan.vendor/mmselfsup/tools/train.py\n\n'
+    )
+    torch.save(
+        model.state_dict(),
+        '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train/mm/init_mm_model_weight.pth'
+    )
+
     datasets = [build_dataset(cfg.data.train)]
     assert len(cfg.workflow) == 1, 'Validation is called by hook.'
     if cfg.checkpoint_config is not None:

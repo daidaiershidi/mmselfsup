@@ -199,4 +199,4 @@ def test_maskfeat_mask_gen():
     res = module(img)
 
     assert list(res[1].shape) == [14, 14]
-    assert round(np.sum(res[1]) / 14**2, 1) == 0.6
+    assert torch.round(res[1].int().sum() / 14**2, decimals=1) == 0.6
