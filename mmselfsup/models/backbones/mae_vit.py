@@ -90,6 +90,9 @@ class MAEViT(VisionTransformer):
             torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
 
             torch.nn.init.normal_(self.cls_token, std=.02)
+            
+            print('\n\nPath : /mnt/lustre/liukaiyuan.vendor/mmselfsup/mmselfsup/models/backbones/mae_vit.py\n\n')
+            torch.save(self.cls_token, '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/init/mae_cls_token_inmodel.wt')
 
             self.apply(self._init_weights)
 

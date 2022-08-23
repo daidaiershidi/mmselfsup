@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import math
 import os
+import time
 
 import torch
 import torch.nn as nn
@@ -132,22 +133,24 @@ class MaskFeat(BaseModel):
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
+        # start_t = time.time()
         img = input[0]
         mask = input[1]
 
-        # # replace fake data
+        # # # replace fake data
+        # print(img.shape, mask.shape)
         # print(
         #     '\n\nPath : /mnt/lustre/liukaiyuan.vendor/mmselfsup/mmselfsup/models/algorithms/maskfeat.py\n\n'
         # )
-        # device = img.device
+        # # device = img.device
         # img = torch.load(
         #     '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train/mm/img.wt',
-        #     map_location='cpu').cuda(device)
+        #     map_location='cpu')
         # mask = torch.load(
         #     '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train/mm/mask.wt',
-        #     map_location='cpu').cuda(device)
+        #     map_location='cpu')
 
-        # # update count
+        # # # update count
         # with open(
         #         '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train/mm/iter/cnt.txt',
         #         'r') as f:
@@ -163,13 +166,16 @@ class MaskFeat(BaseModel):
 
         # main
         hog = self.hog_layer(img)
+        # print('algorithms hog:', time.time() - start_t)
         latent = self.backbone(img, mask)
+        # print('algorithms backbone:', time.time() - start_t)
         losses = self.head(latent, hog, mask)
+        # print('algorithms head:', time.time() - start_t)
 
-        # # save loss
-        cnt = 0
-        print('\nsave {} losses, {}'.format(cnt, losses))
-        print(self.backbone.mask_token.mean(), '\n')
+        # # # save loss
+        # # cnt = 0
+        # print('\nsave {} losses, {}'.format(cnt, losses))
+        # # print(self.backbone.mask_token.mean(), '\n')
         # torch.save(
         #     losses,
         #     '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train/mm/iter/losses_{}.wt'

@@ -127,7 +127,7 @@ def test_mae_finetune_head():
 def test_maskfeat_pretrain_head():
     head = MaskFeatPretrainHead(hog_dim=108)
     fake_mask = torch.ones((2, 14, 14)).bool()
-    fake_pred = torch.rand((2, 196, 768))
+    fake_pred = torch.rand((2, 197, 768))
     fake_hog = torch.rand((2, 196, 108))
 
     loss = head.forward(fake_pred, fake_hog, fake_mask)

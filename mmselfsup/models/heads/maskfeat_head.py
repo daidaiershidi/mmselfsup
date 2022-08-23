@@ -1,4 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import time
 from typing import Dict
 
 import torch
@@ -24,7 +25,7 @@ class MaskFeatPretrainHead(BaseModule):
     def __init__(self, embed_dim=768, hog_dim=108, reduction='mean'):
         super().__init__()
         self.head = nn.Linear(embed_dim, hog_dim)
-        self.mse_func = nn.MSELoss(reduction=reduction)
+        # self.mse_func = nn.MSELoss(reduction=reduction)
 
     def init_weights(self):
         nn.init.constant_(self.head.bias, 0)
@@ -43,12 +44,11 @@ class MaskFeatPretrainHead(BaseModule):
 
         # if pred.is_cuda:
         #     target = target.cuda(pred.device)
+        pred = pred[mask]
+        target = target[mask]
+        loss = ((pred - target)**2).mean(-1).mean()
 
-        # loss = (pred - target)**2
-        # loss = loss.mean(dim=1)
-
-        # loss = (loss * mask).sum() / (mask.sum() + 1e-5)
-        loss = self.mse_func(pred[mask], target[mask])
+        # loss = self.mse_func(pred, target)
         losses['loss'] = loss
         return losses
 
@@ -62,13 +62,17 @@ class MaskFeatPretrainHead(BaseModule):
         Returns:
             Dict[str, torch.Tensor]: A dictionary of loss components.
         """
+        # start_t = time.time()
         latent = self.head(latent)
-        torch.save(
-            latent,
-            '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train/mm/latent_afterhead.wt'
-        )
-        mask = mask.flatten(1)
-        losses = self.loss(latent, hog, mask)
+        # print('head latent:', time.time() - start_t)
+        # torch.save(
+        #     latent,
+        #     '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train/mm/latent_afterhead.wt'
+        # )
+        mask = mask.flatten(1).bool()
+        # print('mask latent:', time.time() - start_t)
+        losses = self.loss(latent[:, 1:], hog, mask)
+        # print('losses latent:', time.time() - start_t)
         return losses
 
 

@@ -28,9 +28,19 @@ class SingleViewDataset(BaseDataset):
     def __getitem__(self, idx):
         label = self.gt_labels[idx]
         img = self.data_source.get_img(idx)
+
+        # print('\n\nPath : /mnt/lustre/liukaiyuan.vendor/mmselfsup/mmselfsup/datasets/single_view.py\n\n')
+
+        # torch.save(
+        #     img,
+        #     '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/dataset/mm/img.wt')
         img = self.pipeline(img)
         if self.prefetch:
             img = torch.from_numpy(to_numpy(img))
+        # torch.save(
+        #     img,
+        #     '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/dataset/mm/img_p.wt')
+        # assert 1 == 0
         return dict(img=img, label=label, idx=idx)
 
     def evaluate(self, results, logger=None, topk=(1, 5)):

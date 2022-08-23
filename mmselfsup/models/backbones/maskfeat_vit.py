@@ -1,4 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import random
+import sys
+import time
+
+import numpy as np
 import torch
 from mmcls.models import VisionTransformer
 from mmcv.cnn.utils.weight_init import trunc_normal_
@@ -33,8 +38,6 @@ class MaskFeatViT(VisionTransformer):
         patch_cfg (dict): Configs of patch embeding. Defaults to an empty dict.
         layer_cfgs (Sequence | dict): Configs of each transformer layer in
             encoder. Defaults to an empty dict.
-        mask_ratio (bool): The ratio of total number of patches to be masked.
-            Defaults to 0.40.
         init_cfg (dict, optional): Initialization config dict.
             Defaults to None.
     """
@@ -52,7 +55,6 @@ class MaskFeatViT(VisionTransformer):
                  interpolate_mode='bicubic',
                  patch_cfg=dict(),
                  layer_cfgs=dict(),
-                 mask_ratio=0.40,
                  init_cfg=None):
         super().__init__(
             arch=arch,
@@ -69,7 +71,6 @@ class MaskFeatViT(VisionTransformer):
             layer_cfgs=layer_cfgs,
             init_cfg=init_cfg)
 
-        self.mask_ratio = mask_ratio
         self.mask_token = nn.parameter.Parameter(
             torch.zeros(1, 1, self.embed_dims))
         self.num_patches = self.patch_resolution[0] * self.patch_resolution[1]
@@ -81,7 +82,7 @@ class MaskFeatViT(VisionTransformer):
 
             trunc_normal_(self.cls_token, std=.02)
             trunc_normal_(self.mask_token, std=.02)
-            trunc_normal_(self.pos_embed, std=0.02)
+            trunc_normal_(self.pos_embed, std=.02)
 
             self.apply(self._init_weights)
 
@@ -95,25 +96,30 @@ class MaskFeatViT(VisionTransformer):
             nn.init.constant_(m.weight, 1.0)
 
     def forward(self, x, mask):
+        # start_t = time.time()
         B = x.shape[0]
-        x, _ = self.patch_embed(x)
+        x = self.patch_embed(x)[0]
+        # print('backbone patch_embed:', time.time() - start_t)
 
         # masking: length -> length * mask_ratio
         B, L, _ = x.shape
         mask_tokens = self.mask_token.expand(B, L, -1)
         mask = mask.flatten(1).unsqueeze(-1)
         x = x * (1 - mask.int()) + mask_tokens * mask
+        # print('backbone replace mask:', time.time() - start_t)
 
         # append cls token
         cls_tokens = self.cls_token.expand(B, -1, -1)
         x = torch.cat((cls_tokens, x), dim=1)
         x = x + self.pos_embed
         x = self.drop_after_pos(x)
+        # print('backbone drop_after_pos:', time.time() - start_t)
 
         for i, layer in enumerate(self.layers):
             x = layer(x)
 
             if i == len(self.layers) - 1 and self.final_norm:
                 x = self.norm1(x)
+        # print('backbone layers:', time.time() - start_t)
 
-        return x[:, 1:]
+        return x

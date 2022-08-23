@@ -9,8 +9,11 @@ import warnings
 import mmcv
 import torch
 import torch.distributed as dist
+import torch.nn as nn
+import torch.nn.functional as F
 from mmcv import Config, DictAction
 from mmcv.runner import get_dist_info, init_dist
+from torch.nn.init import trunc_normal_
 
 from mmselfsup import __version__
 from mmselfsup.apis import init_random_seed, set_random_seed, train_model
@@ -174,16 +177,27 @@ def main():
     meta['seed'] = seed
     meta['exp_name'] = osp.basename(args.config)
 
-    model = build_algorithm(cfg.model)
-    model.init_weights()
-
     print(
         '\n\nPath : /mnt/lustre/liukaiyuan.vendor/mmselfsup/tools/train.py\n\n'
     )
-    torch.save(
-        model.state_dict(),
-        '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train/mm/init_mm_model_weight.pth'
-    )
+    # cls_token = nn.Parameter(torch.randn(1, 1, 768))
+    # cls_token = torch.nn.init.normal_(cls_token, std=.02)
+    # torch.save(
+    #     cls_token,
+    #     '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/init/mae_cls_token_intrain.wt'
+    # )
+
+    model = build_algorithm(cfg.model)
+    model.init_weights()
+
+    # print(
+    #     '\n\nPath : /mnt/lustre/liukaiyuan.vendor/mmselfsup/tools/train.py\n\n'
+    # )
+    # torch.save(
+    #     model.state_dict(),
+    #     '/mnt/lustre/liukaiyuan.vendor/duiqi/pipeline/train/mm/init_mm_model_weight.pth'
+    # )
+    # assert 1 == 0
 
     datasets = [build_dataset(cfg.data.train)]
     assert len(cfg.workflow) == 1, 'Validation is called by hook.'
