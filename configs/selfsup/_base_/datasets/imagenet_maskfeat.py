@@ -31,14 +31,14 @@ data = dict(
             type=data_source,
             data_prefix='data/imagenet/train',
             ann_file='data/imagenet/meta/train.txt',
-            # file_client_args=dict(
-            #     backend='petrel',
-            #     path_mapping=dict({
-            #         './data/':
-            #         'sproject:s3://openmmlab/datasets/classification/',
-            #         'data/':
-            #         'sproject:s3://openmmlab/datasets/classification/'
-            #     }))
-        ),
+            file_client_args=dict(
+                backend='petrel',
+                path_mapping=dict({
+                    './data/':
+                    'sproject:s3://openmmlab/datasets/classification/',
+                    'data/':
+                    'sproject:s3://openmmlab/datasets/classification/'
+                }))
+            ),
         pipeline=train_pipeline,
         prefetch=prefetch))

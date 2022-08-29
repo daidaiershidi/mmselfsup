@@ -8,4 +8,4 @@ model = dict(
         drop_path_rate=0,
     ),
     head=dict(type='MaskFeatPretrainHead', hog_dim=108),
-    hog_para=dict(nbins=9, pool=8))
+    hog_para=dict(nbins=9, pool=8, gaussian_window=16))

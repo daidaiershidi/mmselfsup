@@ -56,7 +56,7 @@ class MaskFeatPretrainHead(BaseModule):
                 mask: torch.Tensor) -> Dict[str, torch.Tensor]:
         """Pre-training head for MaskFeat.
         Args:
-            latent (torch.Tensor): Input latent of shape (N, L, C).
+            latent (torch.Tensor): Input latent of shape (N, 1+L, C).
             hog (torch.Tensor): Input hog feature of shape (N, L, C).
             mask (torch.Tensor): Input mask of shape (N, H, W).
         Returns:
@@ -86,7 +86,8 @@ class MaskFeatFinetuneHead(BaseModule):
 
     def __init__(self, embed_dim, num_classes=1000, label_smooth_val=0.1):
         super().__init__()
-        self.head = nn.Linear(embed_dim, num_classes)
+        self.head = nn.Linear(embed_dim, num_classes, bias=True)
+        self.act = nn.Softmax(dim=1)
         self.criterion = LabelSmoothLoss(label_smooth_val, num_classes)
 
     def init_weights(self):
@@ -96,7 +97,8 @@ class MaskFeatFinetuneHead(BaseModule):
     def forward(self, x):
         """"Get the logits."""
         outputs = self.head(x)
-
+        if not self.training:
+            outputs = self.act(outputs)
         return [outputs]
 
     def loss(self, outputs, labels):

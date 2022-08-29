@@ -28,7 +28,7 @@ def get_gkern(kernlen, std):
 
 class HOGLayerC(nn.Module):
 
-    def __init__(self, nbins=9, pool=8, gaussian_window=0):
+    def __init__(self, nbins=9, pool=8, gaussian_window=16):
         super(HOGLayerC, self).__init__()
         self.nbins = nbins
         self.pool = pool
