@@ -7,7 +7,7 @@ _base_ = [
 
 # dataset
 img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-train_pipeline = [  
+train_pipeline = [
     dict(
         type='RandomAug',
         input_size=224,
@@ -27,7 +27,7 @@ test_pipeline = [
     dict(type='Normalize', **img_norm_cfg)
 ]
 data = dict(
-    samples_per_gpu=512,
+    samples_per_gpu=256,
     drop_last=False,
     workers_per_gpu=32,
     train=dict(pipeline=train_pipeline),
@@ -40,16 +40,17 @@ model = dict(
         type='MaskFeatFinetuneHead',
         num_classes=1000,
         embed_dim=768,
-        label_smooth_val=0.1)
-)
+        label_smooth_val=0.1))
 
 # optimizer
 optimizer = dict(
-    lr=0.002 * 8,
+    lr=0.002 / 2 * 8,
+    betas=(0.9, 0.999),
     paramwise_options={
         'ln': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
     },
+    weight_decay=0.05,
     constructor='TransformerFinetuneConstructor',
     model_type='vit',
     layer_decay=0.65)

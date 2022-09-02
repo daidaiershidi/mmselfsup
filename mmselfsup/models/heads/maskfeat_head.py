@@ -29,7 +29,7 @@ class MaskFeatPretrainHead(BaseModule):
 
     def init_weights(self):
         nn.init.constant_(self.head.bias, 0)
-        trunc_normal_(self.head.weight, std=0.02)
+        trunc_normal_(self.head.weight, std=.02)
 
     def loss(self, pred, target, mask):
         """Compute the loss.
@@ -92,7 +92,7 @@ class MaskFeatFinetuneHead(BaseModule):
 
     def init_weights(self):
         nn.init.constant_(self.head.bias, 0)
-        trunc_normal_(self.head.weight, std=2e-5)
+        trunc_normal_(self.head.weight, std=.02)
 
     def forward(self, x):
         """"Get the logits."""
