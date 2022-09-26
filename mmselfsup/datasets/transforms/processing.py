@@ -1258,8 +1258,8 @@ class RandomRotation(BaseTransform):
 
 
 @TRANSFORMS.register_module()
-class MaskfeatMaskGenerator(BaseTransform):
-    """Generate mask for image.
+class MaskFeatMaskGenerator(BaseTransform):
+    """Generate random block mask for image.
 
     Added Keys:
 
@@ -1276,7 +1276,8 @@ class MaskfeatMaskGenerator(BaseTransform):
         max_num_patches (int, optional): Maximum number of patches that
             require masking. Defaults to None.
         min_aspect (int): Minimum aspect of patches. Defaults to 0.3.
-        max_aspect (float, optional): Maximum aspect of patches. Defaults to None.
+        max_aspect (float, optional): Maximum aspect of patches.
+            Defaults to None.
     """
 
     def __init__(

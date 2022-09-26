@@ -96,13 +96,12 @@ class MaskFeatViT(VisionTransformer):
 
     def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
         """Generate features for masked images.
+
         Args:
-            x (torch.Tensor): Input images, which is of shape B x C x H x W.
-            mask (torch.Tensor): Input masks, which is of shape
-                B x M x M and M = img_size // patch_size.
+            x (torch.Tensor): Input images.
+            mask (torch.Tensor): Input masks.
         Returns:
-            torch.Tensor: Features with cls_tokens, which is of shape
-                    B x (1 + L) x C.
+            torch.Tensor: Features with cls_tokens.
         """
         B = x.shape[0]
         x = self.patch_embed(x)[0]
